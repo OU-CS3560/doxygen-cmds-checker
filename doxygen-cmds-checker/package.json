@@ -36,5 +36,9 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "/tools/doxygen-cmds"
+  "homepage": "/tools/doxygen-cmds",
+  "devDependencies": {
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12"
+  }
 }

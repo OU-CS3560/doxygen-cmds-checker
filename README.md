@@ -12,7 +12,7 @@ It can handle the following formats.
   @cmd3
   ```
 - Use the "Take 1st Column" button to get rid of command's description e.g.
-  ````plain
+  ```plain
   @cmd1 = desciption1
   @cmd2 = desciption2
   @cmd3 = desciption3
