@@ -1,80 +1,128 @@
-import React from 'react';
-import styled from 'styled-components';
-import doxygen_cmds from './doxygen_cmds.json';
+import * as React from "react";
+import { useState } from "react";
+import styled from "styled-components";
+import doxygen_cmds from "./doxygen_cmds.json";
 
 const StyledAppContainer = styled.div`
   width: 600px;
   margin: 10px auto auto auto;
 `;
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      text: "",
-      tokens: [],
-      unknown_cmds: []
+const StyledRow = styled.div`
+  display: block;
+`;
+
+const StyledButton = styled.button`
+  margin: 2px;
+`;
+
+const takeNthColumn = (n, value) => {
+  const lines = value.split("\n");
+  const firstColumns = lines.map((line) => {
+    line = line.trim();
+
+    if (line.length !== 0) {
+      const tokens = line.split(/\s/);
+      if (tokens.length !== 0 && n <= tokens.length) {
+        return tokens[n - 1];
+      }
+      return line;
     }
+    return line;
+  });
 
-    this.handleChange = this.handleChange.bind(this);
-  }
+  return firstColumns.join("\n");
+};
 
-  handleChange(event) {
+const App = () => {
+  const [text, setText] = useState("");
+  const [tokens, setTokens] = useState([]);
+  const [unknownCmds, setUnknownCmds] = useState([]);
+
+  const parseText = (value) => {
     // Parse input to tokens.
-    const lines = event.target.value.split("\n");
-    let all_tokens = [];
-    lines.forEach(line => {
+    const lines = value.split("\n");
+    let allTokens = [];
+    lines.forEach((line) => {
       line = line.trim();
+
       if (line.length !== 0) {
-        const tokens = line.split(",").map(v => {
-          v = v.trim();
-          if (v[0] === '\\' || v[0] === '@') {
-            v = v.slice(1);
-          }
-          return v;
-        }).filter(v => v.length !== 0);
-        all_tokens.push(...tokens);
+        const tokens = line
+          .split(",")
+          .map((v) => {
+            v = v.trim();
+            if (v[0] === "\\" || v[0] === "@") {
+              v = v.slice(1);
+            }
+            return v;
+          })
+          .filter((v) => v.length !== 0);
+        allTokens.push(...tokens);
       }
     });
 
     // Filter to only unknown commands.
-    const unknown_cmds = all_tokens.filter(v => !doxygen_cmds.command_names.includes(v));
+    const newUnknownCmds = allTokens.filter(
+      (v) => !doxygen_cmds.command_names.includes(v)
+    );
 
-    this.setState({
-      text: event.target.value,
-      tokens: all_tokens,
-      unknown_cmds: unknown_cmds
-    });
-  }
+    setTokens(allTokens);
+    setUnknownCmds(newUnknownCmds);
+  };
 
-  render() {
-    let unknown_cmds_list;
-    if (this.state.unknown_cmds.length === 0 && this.state.tokens.length === 0) {
-      unknown_cmds_list = <p></p>
-    } else if (this.state.unknown_cmds.length === 0) {
-      unknown_cmds_list = <p>All tokens are Doxygen commands</p>
-    } else {
-      let items = this.state.unknown_cmds.map((token) => 
-        <li key={token}>{token}</li>
-      );
-      unknown_cmds_list = (<>
+  let unknownCmdsList;
+  if (unknownCmds.length === 0 && tokens.length === 0) {
+    unknownCmdsList = <p></p>;
+  } else if (unknownCmds.length === 0) {
+    unknownCmdsList = <p>All tokens are Doxygen commands</p>;
+  } else {
+    let items = unknownCmds.map((token) => <li key={token}>{token}</li>);
+    unknownCmdsList = (
+      <>
         <p>These are not Doxygen commands</p>
         <ul>{items}</ul>
-      </>);
-    }
-
-    return (
-      <StyledAppContainer>
-        <section>
-          <h3>List of tokens</h3>
-          <textarea rows="5" cols="50" value={this.state.text} onChange={this.handleChange}></textarea>
-        </section>
-        <section>
-          {unknown_cmds_list}
-        </section>
-      </StyledAppContainer>
+      </>
     );
   }
-}
+
+  return (
+    <StyledAppContainer>
+      <section>
+        <h3>Doxygen Commands Checker</h3>
+        <p>Paste the student's answer in here to check.</p>
+        <StyledRow>
+          <StyledButton
+            onClick={(event) => {
+              setText("");
+              setTokens([]);
+              setUnknownCmds([]);
+            }}
+          >
+            Clear
+          </StyledButton>
+          <StyledButton
+            onClick={(event) => {
+              const newText = takeNthColumn(1, text);
+              setText(newText);
+              parseText(newText);
+            }}
+          >
+            Take First Column
+          </StyledButton>
+        </StyledRow>
+        <textarea
+          rows="20"
+          cols="80"
+          value={text}
+          onChange={(event) => {
+            setText(event.target.value);
+            parseText(event.target.value);
+          }}
+        ></textarea>
+      </section>
+      <section>{unknownCmdsList}</section>
+    </StyledAppContainer>
+  );
+};
 
 export default App;
