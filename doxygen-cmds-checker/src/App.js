@@ -89,7 +89,7 @@ const App = () => {
     <StyledAppContainer>
       <section>
         <h3>Doxygen Commands Checker</h3>
-        <p>Paste the student's answer in here to check.</p>
+        <p>Paste the student's answer in the textarea down below to check.</p>
         <StyledRow>
           <StyledButton
             onClick={(event) => {
@@ -107,7 +107,16 @@ const App = () => {
               parseText(newText);
             }}
           >
-            Take First Column
+            Take 1st Column
+          </StyledButton>
+          <StyledButton
+            onClick={(event) => {
+              const newText = takeNthColumn(2, text);
+              setText(newText);
+              parseText(newText);
+            }}
+          >
+            Take 2nd Column
           </StyledButton>
         </StyledRow>
         <textarea
